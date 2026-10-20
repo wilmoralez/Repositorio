@@ -1,0 +1,51 @@
+---
+title: "Datos Sentinel"
+author: "Wilmer Morales"
+date: "2026-09-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r pressure, echo=FALSE}
+library(terra)
+
+# 1.  carpeta .SAFE
+safe_dir <- "S2A_MSIL2A_20201112T161531_N0500_R140_T16PCB_20230303T113427.SAFE"
+
+# 2. Localizar automáticamente las 4 bandas de 10m (Azul, Verde, Rojo, NIR)
+ruta_b2 <- list.files(safe_dir, pattern = "_B02_10m\\.jp2$", full.names = TRUE, recursive = TRUE)
+ruta_b3 <- list.files(safe_dir, pattern = "_B03_10m\\.jp2$", full.names = TRUE, recursive = TRUE)
+ruta_b4 <- list.files(safe_dir, pattern = "_B04_10m\\.jp2$", full.names = TRUE, recursive = TRUE)
+ruta_b8 <- list.files(safe_dir, pattern = "_B08_10m\\.jp2$", full.names = TRUE, recursive = TRUE)
+
+# 3. Apilar las bandas en un único objeto SpatRaster multicapa
+raster_multiespectral <- rast(c(ruta_b2, ruta_b3, ruta_b4, ruta_b8))
+names(raster_multiespectral) <- c("Azul", "Verde", "Rojo", "NIR")
+
+# 4. Crear la caja delimitadora geográfica para el Valle de Sula
+ext_valle <- ext(-88.15, -87.75, 15.25, 15.75)
+poligono_vs <- as.polygons(ext_valle)
+crs(poligono_vs) <- "EPSG:4326"
+
+# 5. Transformar sistema de coordenadas, recortar y enmascarar
+raster_multiespectral <- project(raster_multiespectral, "EPSG:4326")
+raster_recortado <- crop(raster_multiespectral, poligono_vs)
+raster_enmascarado <- mask(raster_recortado, poligono_vs)
+
+# 6. Transformar el raster a la matriz plana tabular para K-TAU
+matriz_espectral <- as.data.frame(raster_enmascarado, xy = TRUE)
+matriz_limpia <- na.omit(matriz_espectral)
+
+# --- Verificación final ---
+dim(matriz_limpia)
+head(matriz_limpia)
+
+
+# Visualización rápida de comprobación
+plotRGB(raster_enmascarado, r=4, g=3, b=2, stretch="lin")
+
+```
