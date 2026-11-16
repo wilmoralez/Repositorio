@@ -1,6 +1,4 @@
-# README adaptado
 
-```markdown
 # Delimitación de zonas inundadas con Sentinel-2 mediante K-TAU (Valle de Sula)
 
 Este repositorio contiene el código en R Markdown (`inundacion_ktau_interseccion.Rmd`) que implementa un flujo completo de **delimitación de zonas inundadas** en la imagen Sentinel-2 del 12/11/2020 (tile T16PCB, Valle de Sula, Honduras), comparando el algoritmo de clustering robusto **K-TAU** frente a **K-Means** y a líneas base supervisadas y no supervisadas (NDWI, MNDWI, Otsu, SCL, regresión logística).
@@ -155,16 +153,4 @@ proyecto/
 - El modelo no supervisado ve (sin etiquetas) los píxeles de los pliegues retenidos: la validación es **transductiva**, no inductiva. Los bloques de 2 km adyacentes siguen correlacionados, por lo que los resultados son algo optimistas respecto a una zona totalmente nueva.
 - La referencia `observedEventA` incluye vegetación y suelo anegado además de agua abierta; un detector puramente de agua (NDWI, MNDWI) puede tener `recall` bajo por diseño. El script reporta la diferencia entre "zona inundada" y "agua abierta".
 - La línea base MNDWI sólo se calcula si `*_B11_20m.jp2` está presente en el `.SAFE`.
-```
 
-## Cambios principales respecto al README original
-
-1. **Título y alcance**: pasó de "Preprocesamiento" a "Delimitación de zonas inundadas" — el `.Rmd` no es un script de preprocesamiento, es un pipeline completo de clustering + evaluación + mapas.
-2. **Fecha**: Octubre 2026 → Noviembre 2026 (el YAML dice `2026-11-12`).
-3. **Paquetes**: `terra` → los 7 paquetes que el chunk `{r paquetes}` exige realmente.
-4. **Datos de entrada**: se documentan los **3 shapefiles de Copernicus** (obligatorios dos, opcional uno) que el `.Rmd` busca con `file.exists()`.
-5. **Configuración de CRAN**: se explica el error `trying to use CRAN without setting a mirror` que motivó tu consulta inicial y cómo evitarlo.
-6. **Archivos del SAFE**: tabla con todos los `.jp2` y el XML que `buscar()` localiza recursivamente.
-7. **Salidas**: se enumeran los 7 CSV que el knit genera al final (antes no se mencionaba ninguno).
-8. **Estructura de carpetas**: árbol completo con el `.SAFE` y `Copernicus_Vector/`.
-9. **Limitaciones**: se documentan las tres advertencias que el propio `.Rmd` declara en prosa (validación transductiva, referencia vs. agua abierta, MNDWI opcional).
